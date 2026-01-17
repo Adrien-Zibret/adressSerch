@@ -1,0 +1,29 @@
+$("#ville1").autocomplete({
+    source: function (request, response) {
+        $.ajax({
+            url: "https://data.geopf.fr/geocodage/search/?city=" + $("input[name='ville1']").val(),
+            data: {
+                q: request.term
+            },
+            dataType: "json",
+            success: function (data) {
+                var cities = [];
+                response($.map(data.features, function (item) {
+                    // Ici on est obligé d'ajouter les villes dans un array pour ne pas avoir plusieurs fois la même
+                    if ($.inArray(item.properties.postcode, cities) == -1) {
+                        cities.push(item.properties.postcode);
+                        return {
+                            label: item.properties.postcode + " - " + item.properties.city,
+                            postcode: item.properties.postcode,
+                            value: item.properties.city
+                        };
+                    }
+                }));
+            }
+        });
+    },
+    // On remplit aussi le CP
+    select: function (event, ui) {
+        $('#cp').val(ui.item.postcode);
+    }
+});
